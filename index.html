@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI on fire 🔥 - Activation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background: #1e1e1e; padding: 2.5rem; border-radius: 20px; box-shadow: 0 0 25px rgba(255, 69, 0, 0.25); text-align: center; width: 100%; max-width: 380px; border: 1px solid #333; }
+        h1 { margin-top: 0; margin-bottom: 25px; color: #ff4500; font-size: 28px; text-transform: uppercase; font-weight: 800; }
+        input { width: 100%; padding: 14px; box-sizing: border-box; border: 2px solid #333; background-color: #2c2c2c; color: white; border-radius: 12px; font-size: 15px; outline: none; margin-bottom: 15px; }
+        input:focus { border-color: #ff4500; }
+        .activate-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #ff4500, #ff8c00); border: none; color: white; font-weight: 600; font-size: 16px; border-radius: 12px; cursor: pointer; }
+        #error-msg { margin-top: 15px; font-family: 'Baloo Da 2', cursive; color: #ff0000; font-weight: 800; font-size: 18px; display: none; }
+        .subs-container { display: flex; gap: 10px; margin-top: 20px; }
+        .sub-card { background: #252525; border: 1px solid #333; border-radius: 12px; padding: 10px; flex: 1; text-align: center; }
+        .buy-btn { background-color: #0088cc; color: white; text-decoration: none; padding: 5px 0; width: 100%; border-radius: 5px; font-size: 12px; display: block; margin-top: 5px; }
+        .footer-section { margin-top: 20px; border-top: 1px dashed #333; padding-top: 10px; }
+        .telegram-channel-btn { background: #2AABEE; color: white; text-decoration: none; padding: 10px; border-radius: 10px; display: flex; justify-content: center; gap: 5px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PI on fire 🔥</h1>
+        <input type="text" id="licenseKey" placeholder="Paste license key...">
+        <button id="activateBtn" class="activate-btn">ACTIVATE</button>
+        <div id="error-msg"></div>
+
+        <div class="subs-container">
+            <div class="sub-card"><div>Weekly</div><a href="https://t.me/Pi_owner10/" class="buy-btn">Buy</a></div>
+            <div class="sub-card"><div>Monthly</div><a href="https://t.me/Pi_owner10/" class="buy-btn">Buy</a></div>
+        </div>
+
+        <div class="footer-section">
+            <div style="color:red; font-weight:800; margin-bottom:10px; font-family:'Baloo Da 2'">Join our telegram channel</div>
+            <a href="https://t.me/traderpi1" class="telegram-channel-btn">Open Channel</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyDVstjcJ_36Z0x2DFFPUKw-_M3cFoBbewY", authDomain: "pi-on-fire.firebaseapp.com", projectId: "pi-on-fire", storageBucket: "pi-on-fire.firebasestorage.app", messagingSenderId: "51185670872", appId: "1:51185670872:web:c051a0455a0fddae6cd5ad", measurementId: "G-R7T8CBB9ZF" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const savedKey = localStorage.getItem("activeLicense");
+        if(savedKey) window.location.href = "Main.html";
+
+        document.getElementById('activateBtn').addEventListener('click', async () => {
+            const key = document.getElementById('licenseKey').value.trim();
+            const err = document.getElementById('error-msg');
+            const btn = document.getElementById('activateBtn');
+
+            if(!key) return;
+            btn.innerText = "Checking...";
+            
+            try {
+                const docSnap = await getDoc(doc(db, "licenses", key));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if(data.banned) { err.innerText = "⛔ BANNED BY ADMIN"; err.style.display='block'; btn.innerText="ACTIVATE"; return; }
+                    if(data.expiryDate && new Date() > new Date(data.expiryDate)) { err.innerText = "⚠️ EXPIRED"; err.style.display='block'; btn.innerText="ACTIVATE"; return; }
+                    
+                    localStorage.setItem("activeLicense", key);
+                    window.location.href = "Main.html";
+                } else {
+                    err.innerText = "আগে লাইসেন্স নে ব্যাটা";
+                    err.style.display = 'block';
+                    btn.innerText = "ACTIVATE";
+                }
+            } catch (e) { alert("Connection Error"); btn.innerText = "ACTIVATE"; }
+        });
+    </script>
+</body>
+</html>

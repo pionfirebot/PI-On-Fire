@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI on fire 🔥 - VIP Future</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0d0d0d;
+            color: white;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #aaa;
+            border: 1px solid #333;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: #222;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .back-btn:hover { border-color: #FFD700; color: white; }
+
+        h1 {
+            color: #FFD700;
+            text-transform: uppercase;
+            font-size: 28px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #fff;
+            text-align: left;
+            margin-bottom: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            border-left: 4px solid #FFD700;
+            padding-left: 10px;
+        }
+
+        /* --- The Locked Box --- */
+        .locked-box {
+            width: 100%;
+            height: 250px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            color: #00ff00; /* Hacker Green Text */
+            font-family: monospace;
+            font-size: 14px;
+            resize: none; /* User can't resize */
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            
+            /* DISABLE COPYING */
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+
+        /* Results Box Color */
+        .result-box {
+            color: #00ccff; /* Cyan for results */
+            border-color: #0077aa;
+        }
+
+        /* Loading Animation */
+        .loader { font-style: italic; color: #555; }
+
+    </style>
+</head>
+<body>
+
+    <a href="Main.html" class="back-btn">← Back</a>
+
+    <div class="container">
+        <h1>👑 VIP Future</h1>
+
+        <!-- Signal Section -->
+        <div class="section-title">FUTURE SIGNALS</div>
+        <textarea id="vipSignals" class="locked-box" readonly>Loading signals...</textarea>
+
+        <!-- Result Section -->
+        <div class="section-title" style="border-color: #00ccff;">SIGNAL RESULT</div>
+        <textarea id="vipResults" class="locked-box result-box" readonly>Loading results...</textarea>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVstjcJ_36Z0x2DFFPUKw-_M3cFoBbewY",
+            authDomain: "pi-on-fire.firebaseapp.com",
+            projectId: "pi-on-fire",
+            storageBucket: "pi-on-fire.firebasestorage.app",
+            messagingSenderId: "51185670872",
+            appId: "1:51185670872:web:c051a0455a0fddae6cd5ad",
+            measurementId: "G-R7T8CBB9ZF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- REAL-TIME LICENSE SECURITY CHECK ---
+        const key = localStorage.getItem("activeLicense");
+        if(!key) window.location.href="index.html"; // Basic check
+
+        // Security Listener (Active Ban/Expiry Watcher)
+        onSnapshot(doc(db, "licenses", key), (docSnap) => {
+            if (!docSnap.exists() || docSnap.data().banned || (docSnap.data().expiryDate && new Date() > new Date(docSnap.data().expiryDate))) {
+                localStorage.removeItem("activeLicense");
+                alert("⛔ ACCESS DENIED: Banned or Expired!");
+                window.location.href = "index.html";
+            }
+        });
+
+        // --- VIP Content Listener ---
+        // Real-time updates for signals text
+        const vipDocRef = doc(db, "vip_content", "daily_data");
+
+        onSnapshot(vipDocRef, (doc) => {
+            const sigBox = document.getElementById('vipSignals');
+            const resBox = document.getElementById('vipResults');
+
+            if (doc.exists()) {
+                const data = doc.data();
+                
+                // Set text or default message
+                sigBox.value = data.signals || "No signals uploaded yet.\nStay tuned!";
+                resBox.value = data.results || "Results will appear here after session.";
+            } else {
+                sigBox.value = "No data found.";
+                resBox.value = "No data found.";
+            }
+        });
+
+        // Extra Security: Disable Right Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+</body>
+</html>

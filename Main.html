@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI on fire 🔥 - Main</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;700;800&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Base Theme --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* --- License Badge (Top Right) --- */
+        .license-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #ff4500;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: #ccc;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 5px;
+            z-index: 1000;
+        }
+        .days-left { color: #ff4500; font-weight: 800; font-size: 14px; }
+
+        /* --- Winning Rate Box --- */
+        .win-rate-container {
+            background: linear-gradient(90deg, #1e1e1e, #252525);
+            border: 1px solid #00ff00;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+        }
+        .win-rate-label { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .win-rate-value { font-size: 24px; font-weight: 900; color: #00ff00; text-shadow: 0 0 10px rgba(0, 255, 0, 0.4); }
+
+        /* --- Popups --- */
+        .popup-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .popup-content {
+            background: #1e1e1e; border: 2px solid #FFD700; padding: 30px; border-radius: 20px;
+            text-align: center; max-width: 320px; animation: popIn 0.5s ease; position: relative;
+        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* VIP Popup Styles */
+        .vip-title { color: #00ff00; font-size: 24px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 0 10px #00ff00; }
+        
+        /* Result Feedback Popup Styles */
+        .feedback-title { color: #fff; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .feedback-details { color: #aaa; font-size: 13px; margin-bottom: 20px; text-align: left; background: #252525; padding: 10px; border-radius: 8px; }
+        .feedback-details span { display: block; margin-bottom: 5px; }
+        .feedback-btn-group { display: flex; gap: 10px; }
+        .btn-profit { flex: 1; background: #00b894; border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .btn-loss { flex: 1; background: #d63031; border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+
+        .container {
+            background: #1e1e1e; padding: 2rem; border-radius: 20px;
+            box-shadow: 0 0 25px rgba(255, 69, 0, 0.25); text-align: center;
+            width: 100%; max-width: 400px; border: 1px solid #333; margin-top: 40px;
+        }
+
+        h1 { margin-top: 0; color: #ff4500; font-size: 28px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 10px; }
+
+        .warning-text {
+            font-family: 'Baloo Da 2', cursive; font-size: 16px; font-weight: 800;
+            color: #ff3333; margin-bottom: 25px; line-height: 1.4;
+            animation: glow-pulse 2s infinite alternate;
+        }
+        @keyframes glow-pulse {
+            0% { text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); transform: scale(1); }
+            100% { text-shadow: 0 0 20px rgba(255, 0, 0, 0.9), 0 0 10px #ff4500; transform: scale(1.02); }
+        }
+
+        .tabs { display: flex; background: #2c2c2c; border-radius: 12px; padding: 5px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #aaa; font-weight: 600; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .tab-btn.active { background: #ff4500; color: white; box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3); }
+
+        .section-content { display: none; text-align: left; animation: fadeIn 0.4s; }
+        .section-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        label { font-size: 13px; color: #ccc; margin-bottom: 8px; display: block; margin-left: 2px; font-weight: 500; }
+        select { width: 100%; padding: 12px; background-color: #2c2c2c; color: white; border: 1px solid #444; border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 20px; }
+        select:focus { border-color: #ff4500; }
+
+        .time-options { display: flex; gap: 10px; justify-content: space-between; margin-bottom: 20px; }
+        .time-btn { flex: 1; padding: 10px 0; background: #2c2c2c; border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .time-btn.selected { background: #ff4500; border-color: #ff4500; font-weight: bold; }
+
+        .get-signal-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #00b894, #00cec9); border: none; color: white; font-weight: 800; font-size: 18px; border-radius: 12px; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3); transition: 0.3s; margin-top: 10px; }
+        
+        .boom-btn { width: 100%; padding: 20px; background: linear-gradient(45deg, #ff0000, #ff4500, #ffcc00); border: none; color: white; font-weight: 900; font-size: 22px; border-radius: 15px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 69, 0, 0.6); animation: fireGradient 3s ease infinite; margin-bottom: 15px; }
+        .vip-btn { width: 100%; padding: 20px; background: linear-gradient(45deg, #FFD700, #DAA520, #B8860B); border: 2px solid #fff; color: #000; font-weight: 900; font-size: 22px; border-radius: 15px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); position: relative; overflow: hidden; }
+        .vip-btn::after { content: "👑"; position: absolute; top: 50%; right: 20px; transform: translateY(-50%); font-size: 24px; }
+        @keyframes fireGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        #result-area { margin-top: 25px; background: #252525; padding: 20px; border-radius: 15px; border: 1px solid #444; display: none; }
+        .signal-big { font-size: 32px; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; }
+        .buy-color { color: #00ff00; text-shadow: 0 0 15px rgba(0, 255, 0, 0.4); }
+        .sell-color { color: #ff0000; text-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
+        .result-detail { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 14px; color: #ccc; }
+        .result-detail:last-child { border-bottom: none; }
+        .result-val { color: #fff; font-weight: bold; }
+
+        .footer-section { margin-top: 30px; padding-top: 20px; border-top: 1px dashed #333; }
+        .footer-text { color: #ff0000; font-family: 'Baloo Da 2', cursive; font-weight: 800; font-size: 18px; margin-bottom: 10px; text-shadow: 0 0 8px rgba(255, 0, 0, 0.3); }
+        .telegram-channel-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #2AABEE; color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 15px; transition: 0.3s; }
+        .telegram-channel-btn:hover { background: #229ED9; box-shadow: 0 0 15px rgba(42, 171, 238, 0.3); }
+    </style>
+</head>
+<body>
+
+    <!-- 1. VIP Popup -->
+    <div id="vipPopup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="vip-title">VIP Future Signals<br>Available ✅</div>
+            <div style="color:white; margin-bottom:15px;">New signals have been uploaded by Admin.</div>
+            <button class="popup-close" onclick="document.getElementById('vipPopup').style.display='none'">OKAY</button>
+        </div>
+    </div>
+
+    <!-- 2. Result Feedback Popup (Profit/Loss) -->
+    <div id="feedbackPopup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="feedback-title">Result Check 📊</div>
+            <div class="feedback-details">
+                <span id="fbMarket" style="color:#FFD700; font-weight:bold;">Market: ...</span>
+                <span id="fbTime">Time: ...</span>
+                <span id="fbDir" style="font-weight:bold;">Signal: ...</span>
+            </div>
+            <div style="color:#fff; margin-bottom:15px; font-size:14px;">Was this signal profitable?</div>
+            <div class="feedback-btn-group">
+                <button class="btn-profit" onclick="recordResult(true)">Profit 💸</button>
+                <button class="btn-loss" onclick="recordResult(false)">Loss 😔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badge for Expiry -->
+    <div class="license-badge" id="licenseBadge">
+        <span>Expires in:</span>
+        <span class="days-left" id="daysLeft">...</span>
+    </div>
+
+    <div class="container">
+        <h1>PI on fire 🔥</h1>
+
+        <div class="warning-text">
+            এই বটের লাইসেন্স Trader PI বাদে কেউ বিক্রি করতে পারবে না
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('live')">Live signals 💸</button>
+            <button class="tab-btn" onclick="switchTab('future')">Future Signals 🤑</button>
+        </div>
+
+        <!-- LIVE SECTION -->
+        <div id="live-section" class="section-content active">
+            
+            <!-- Winning Rate Display -->
+            <div class="win-rate-container">
+                <div class="win-rate-label">Your Winning Rate</div>
+                <div class="win-rate-value" id="winRateValue">100%</div>
+            </div>
+
+            <label>Select Market</label>
+            <select id="marketSelect">
+                <option value="USD/BRL OTC">USD/BRL OTC</option>
+                <option value="USD/BDT OTC">USD/BDT OTC</option>
+                <option value="USD/INR OTC">USD/INR OTC</option>
+                <option value="USD/MXN OTC">USD/MXN OTC</option>
+                <option value="USD/PKR OTC">USD/PKR OTC</option>
+                <option value="EUR/USD OTC">EUR/USD OTC</option>
+                <option value="USD/CHF OTC">USD/CHF OTC</option>
+                <option value="USD/IDR OTC">USD/IDR OTC</option>
+                <option value="USD/DZD OTC">USD/DZD OTC</option>
+                <option value="USD/NGN OTC">USD/NGN OTC</option>
+                <option value="USD/EGP OTC">USD/EGP OTC</option>
+                <option value="GOLD">GOLD</option>
+                <option value="SILVER">SILVER</option>
+            </select>
+
+            <label>Select trade time</label>
+            <div class="time-options">
+                <button class="time-btn" onclick="selectTime(this, '1M')">1M</button>
+                <button class="time-btn" onclick="selectTime(this, '2M')">2M</button>
+                <button class="time-btn" onclick="selectTime(this, '5M')">5M</button>
+                <button class="time-btn" onclick="selectTime(this, '10M')">10M</button>
+            </div>
+            <input type="hidden" id="selectedTime" value="">
+
+            <label>Select Accuracy</label>
+            <select id="accuracySelect">
+                <option value="90-98">90% - 98% 🔥</option>
+                <option value="80-90">80% - 90%</option>
+                <option value="70-80">70% - 80%</option>
+            </select>
+
+            <button class="get-signal-btn" onclick="generateSignal()">Get Signal</button>
+
+            <div id="result-area">
+                <div id="signalType" class="signal-big"></div>
+                <div class="result-detail">
+                    <span>Market:</span> <span id="resMarket" class="result-val"></span>
+                </div>
+                <div class="result-detail">
+                    <span>Time:</span> <span id="resTime" class="result-val"></span>
+                </div>
+                <div class="result-detail">
+                    <span>Accuracy:</span> <span id="resAccuracy" class="result-val"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FUTURE SECTION -->
+        <div id="future-section" class="section-content">
+            <p style="color:#aaa; margin-bottom:20px;">Generate massive profit with our Boom Shots system.</p>
+            <button class="boom-btn" onclick="window.location.href='boom.html'">Boom Shots 💣🔥</button>
+            <button class="vip-btn" onclick="window.location.href='vip.html'">VIP Future Signal 👑</button>
+        </div>
+
+        <div class="footer-section">
+            <div class="footer-text">Join our telegram channel</div>
+            <a href="https://t.me/traderpi1" target="_blank" class="telegram-channel-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42l10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.002.001l-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15l4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/>
+                </svg>
+                Open Channel
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Firebase & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVstjcJ_36Z0x2DFFPUKw-_M3cFoBbewY",
+            authDomain: "pi-on-fire.firebaseapp.com",
+            projectId: "pi-on-fire",
+            storageBucket: "pi-on-fire.firebasestorage.app",
+            messagingSenderId: "51185670872",
+            appId: "1:51185670872:web:c051a0455a0fddae6cd5ad",
+            measurementId: "G-R7T8CBB9ZF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- REAL-TIME LICENSE CHECK ---
+        const licenseKey = localStorage.getItem("activeLicense");
+        if(!licenseKey) window.location.href = "index.html"; 
+
+        onSnapshot(doc(db, "licenses", licenseKey), (docSnap) => {
+            if (!docSnap.exists()) {
+                logoutUser("License Key Invalid or Deleted.");
+                return;
+            }
+            const data = docSnap.data();
+            if (data.banned === true) {
+                logoutUser("⛔ ACCESS DENIED: You have been BANNED!");
+                return;
+            }
+            if (data.expiryDate && new Date() > new Date(data.expiryDate)) {
+                logoutUser("⚠️ License Expired! Please purchase a new one.");
+                return;
+            }
+            if(data.expiryDate) {
+                const days = Math.ceil((new Date(data.expiryDate) - new Date())/(1000*60*60*24));
+                document.getElementById('licenseBadge').style.display='flex'; 
+                document.getElementById('daysLeft').innerText = days + " Days";
+            }
+        });
+
+        function logoutUser(msg) {
+            localStorage.removeItem("activeLicense");
+            alert(msg);
+            window.location.href = "index.html";
+        }
+
+        // --- VIP POPUP CHECK ---
+        window.addEventListener('load', async () => {
+            // Load Winning Rate
+            loadWinningRate();
+
+            try {
+                const vipDocRef = doc(db, "vip_content", "daily_data");
+                const vipSnap = await getDoc(vipDocRef);
+                if (vipSnap.exists()) {
+                    const data = vipSnap.data();
+                    if (data.updatedAt) {
+                        const lastUpdate = new Date(data.updatedAt);
+                        const now = new Date();
+                        if ((now - lastUpdate) / (1000 * 60 * 60) < 24) {
+                            if (localStorage.getItem("lastSeenVIP") !== data.updatedAt) {
+                                document.getElementById('vipPopup').style.display = "flex";
+                                localStorage.setItem("lastSeenVIP", data.updatedAt);
+                            }
+                        }
+                    }
+                }
+            } catch (e) { console.log("VIP Check Error", e); }
+        });
+    </script>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            if (tabName === 'live') {
+                document.getElementById('live-section').classList.add('active');
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            } else {
+                document.getElementById('future-section').classList.add('active');
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            }
+        }
+
+        function selectTime(btn, timeValue) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('selectedTime').value = timeValue;
+        }
+
+        // --- WINNING RATE LOGIC ---
+        function loadWinningRate() {
+            const wins = parseInt(localStorage.getItem('userWins') || "10"); // Start slightly positive
+            const total = parseInt(localStorage.getItem('userTrades') || "10");
+            
+            // Avoid division by zero
+            const rate = total === 0 ? 100 : Math.round((wins / total) * 100);
+            document.getElementById('winRateValue').innerText = rate + "%";
+        }
+
+        function recordResult(isWin) {
+            let wins = parseInt(localStorage.getItem('userWins') || "10");
+            let total = parseInt(localStorage.getItem('userTrades') || "10");
+
+            total++;
+            if(isWin) wins++;
+
+            localStorage.setItem('userWins', wins);
+            localStorage.setItem('userTrades', total);
+
+            document.getElementById('feedbackPopup').style.display = 'none';
+            loadWinningRate(); // Update UI
+        }
+
+        // --- SIGNAL GENERATION WITH FEEDBACK TIMER ---
+        function generateSignal() {
+            const market = document.getElementById('marketSelect').value;
+            const time = document.getElementById('selectedTime').value;
+            const accuracyRange = document.getElementById('accuracySelect').value;
+
+            if (time === "") { alert("Please select a trade time!"); return; }
+
+            const isBuy = Math.random() > 0.5;
+            const signalText = isBuy ? "Buy 🟢" : "Sell 🔴";
+            const signalClass = isBuy ? "buy-color" : "sell-color";
+
+            let min, max;
+            if (accuracyRange === "90-98") { min = 90; max = 98; }
+            else if (accuracyRange === "80-90") { min = 80; max = 90; }
+            else { min = 70; max = 80; }
+
+            const specificAccuracy = (Math.random() * (max - min) + min).toFixed(2) + "%";
+
+            // Show Signal
+            const resultArea = document.getElementById('result-area');
+            const signalHeader = document.getElementById('signalType');
+            resultArea.style.display = "block";
+            signalHeader.innerText = signalText;
+            signalHeader.className = "signal-big " + signalClass;
+            document.getElementById('resMarket').innerText = market;
+            document.getElementById('resTime').innerText = time;
+            document.getElementById('resAccuracy').innerText = specificAccuracy;
+
+            // --- START TIMER FOR FEEDBACK ---
+            let duration = 60000; // Default 1 Minute
+            if(time === "2M") duration = 120000;
+            if(time === "5M") duration = 300000;
+            if(time === "10M") duration = 600000;
+
+            console.log("Timer started for: " + duration + "ms");
+
+            setTimeout(() => {
+                // Populate popup data
+                document.getElementById('fbMarket').innerText = "Market: " + market;
+                document.getElementById('fbTime').innerText = "Time: " + time;
+                document.getElementById('fbDir').innerText = "Signal: " + signalText;
+                
+                // Show Popup
+                document.getElementById('feedbackPopup').style.display = 'flex';
+            }, duration);
+        }
+    </script>
+</body>
+</html>

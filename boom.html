@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI on fire 🔥 - Boom Shots</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;700;800&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Same Theme as Main.html */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0d0d0d;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- License Badge (Top Right) --- */
+        .license-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid #ff4500;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: #ccc;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 5px;
+            z-index: 1000;
+        }
+        .days-left { color: #ff4500; font-weight: 800; font-size: 14px; }
+
+        .container {
+            background: #181818;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #333;
+        }
+
+        h1 {
+            color: #ff4500;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle { color: #777; font-size: 14px; margin-bottom: 25px; }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            background-color: #2c2c2c;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        select:focus { border-color: #ff4500; }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff4500, #ff0000);
+            border: none;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            transition: 0.3s;
+            margin-bottom: 10px;
+        }
+        .generate-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 0, 0, 0.6); }
+        .generate-btn:disabled { background: #444; cursor: not-allowed; box-shadow: none; }
+
+        /* MTG Warning */
+        #mtg-warning {
+            display: none;
+            font-family: 'Baloo Da 2', cursive;
+            font-size: 18px;
+            color: #ffcc00;
+            font-weight: 800;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+            animation: pulseText 1.5s infinite;
+        }
+        @keyframes pulseText {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+
+        /* Signal List */
+        #signal-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .signal-item {
+            background: #222;
+            border-left: 4px solid #444;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        .signal-item.buy { border-left-color: #00ff00; }
+        .signal-item.sell { border-left-color: #ff0000; }
+        
+        .sig-time { color: #fff; font-weight: bold; font-size: 15px; width: 60px;}
+        .sig-market { color: #aaa; font-size: 11px; display: block;}
+        .sig-dir { font-weight: 800; font-size: 15px; text-transform: uppercase; }
+        .sig-acc { font-size: 12px; color: #ccc; }
+        
+        .buy-txt { color: #00ff00; }
+        .sell-txt { color: #ff0000; }
+
+        @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Footer */
+        .footer-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #333;
+        }
+        .footer-text {
+            color: #ff0000;
+            font-family: 'Baloo Da 2', cursive;
+            font-weight: 800;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+        }
+        .telegram-channel-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #2AABEE;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        .telegram-channel-btn:hover { background: #229ED9; }
+        .back-link { display: block; margin-top: 15px; color: #666; text-decoration: none; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- Badge -->
+    <div class="license-badge" id="licenseBadge">
+        <span>Expires in:</span>
+        <span class="days-left" id="daysLeft">...</span>
+    </div>
+
+    <div class="container">
+        <h1>Boom Shots 💣🔥</h1>
+        <div class="subtitle">Future Signal Generator</div>
+
+        <div id="input-area">
+            <label>Select Market</label>
+            <select id="marketSelect">
+                <option value="USD/BRL OTC">USD/BRL OTC</option>
+                <option value="USD/BDT OTC">USD/BDT OTC</option>
+                <option value="USD/INR OTC">USD/INR OTC</option>
+                <option value="USD/MXN OTC">USD/MXN OTC</option>
+                <option value="USD/PKR OTC">USD/PKR OTC</option>
+                <option value="USD/CHF OTC">USD/CHF OTC</option>
+                <option value="USD/IDR OTC">USD/IDR OTC</option>
+                <option value="USD/DZD OTC">USD/DZD OTC</option>
+                <option value="USD/NGN OTC">USD/NGN OTC</option>
+                <option value="USD/EGP OTC">USD/EGP OTC</option>
+                <option value="GOLD">GOLD</option>
+                <option value="SILVER">SILVER</option>
+            </select>
+
+            <label>Select Accuracy</label>
+            <select id="accuracySelect">
+                <option value="90-98">90% - 98% 🔥</option>
+                <option value="80-90">80% - 90%</option>
+                <option value="70-80">70% - 80%</option>
+            </select>
+
+            <button id="getSignalBtn" class="generate-btn">GET 10 SIGNALS</button>
+        </div>
+
+        <div id="mtg-warning">If loss then take maximum 1 step MTG</div>
+        <ul id="signal-list"></ul>
+
+        <div class="footer-section">
+            <div class="footer-text">Join our telegram channel</div>
+            <a href="https://t.me/traderpi1" target="_blank" class="telegram-channel-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42l10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l-.002.001l-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15l4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/>
+                </svg>
+                Open Channel
+            </a>
+            <a href="Main.html" class="back-link">Back to Main</a>
+        </div>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVstjcJ_36Z0x2DFFPUKw-_M3cFoBbewY",
+            authDomain: "pi-on-fire.firebaseapp.com",
+            projectId: "pi-on-fire",
+            storageBucket: "pi-on-fire.firebasestorage.app",
+            messagingSenderId: "51185670872",
+            appId: "1:51185670872:web:c051a0455a0fddae6cd5ad",
+            measurementId: "G-R7T8CBB9ZF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const btn = document.getElementById('getSignalBtn');
+        const list = document.getElementById('signal-list');
+        const mtgWarning = document.getElementById('mtg-warning');
+        const licenseKey = localStorage.getItem("activeLicense");
+
+        if (!licenseKey) {
+            window.location.href = "index.html";
+        }
+
+        // --- REAL-TIME LICENSE SECURITY CHECK ---
+        const docRef = doc(db, "licenses", licenseKey);
+        
+        // This listener runs constantly in the background
+        const unsub = onSnapshot(docRef, (docSnap) => {
+            if (!docSnap.exists()) {
+                logoutUser("License Key Invalid or Deleted.");
+                return;
+            }
+
+            const data = docSnap.data();
+
+            // 1. Check Ban Status
+            if (data.banned === true) {
+                logoutUser("⛔ ACCESS DENIED: You have been BANNED!");
+                return;
+            }
+
+            // 2. Check Expiry
+            if (data.expiryDate && new Date() > new Date(data.expiryDate)) {
+                logoutUser("⚠️ License Expired! Please renew.");
+                return;
+            }
+
+            // 3. Update Badge UI
+            if (data.expiryDate) {
+                const expiry = new Date(data.expiryDate);
+                const now = new Date();
+                const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+                document.getElementById('licenseBadge').style.display = 'flex';
+                document.getElementById('daysLeft').innerText = diffDays + " Days";
+            }
+
+            // 4. Update Boom Used Status for Button Logic
+            // We store this in a global variable so the button click knows the latest status
+            window.currentUserData = data; 
+
+        }, (error) => {
+            console.error("Sync Error:", error);
+        });
+
+        function logoutUser(msg) {
+            localStorage.removeItem("activeLicense");
+            alert(msg);
+            window.location.href = "index.html";
+        }
+
+        // --- Button Click Logic ---
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btn.innerText = "Checking...";
+            
+            // Use the data from our real-time listener (fast)
+            if (window.currentUserData) {
+                const data = window.currentUserData;
+
+                if (data.boomUsed === true) {
+                    alert("You have already used your 10 signals.");
+                    btn.innerText = "LIMIT REACHED";
+                    btn.style.background = "#555";
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Generate Signals
+                generateFutureSignals();
+                
+                // Update DB to mark used
+                await updateDoc(docRef, { boomUsed: true });
+                btn.style.display = 'none';
+            } else {
+                // Fallback if listener hasn't loaded data yet (rare)
+                alert("Loading user data... please try again in a second.");
+                btn.disabled = false;
+                btn.innerText = "GET 10 SIGNALS";
+            }
+        });
+
+        function generateFutureSignals() {
+            mtgWarning.style.display = 'block';
+            const market = document.getElementById('marketSelect').value;
+            const accuracyRange = document.getElementById('accuracySelect').value;
+
+            // Time Logic (5 min intervals based on device time)
+            let now = new Date();
+            let minutes = now.getMinutes();
+            let remainder = 5 - (minutes % 5);
+            if (remainder === 0) remainder = 5;
+            
+            let nextTime = new Date(now.getTime() + remainder * 60000);
+            let htmlContent = "";
+
+            for (let i = 0; i < 10; i++) {
+                let h = nextTime.getHours().toString().padStart(2, '0');
+                let m = nextTime.getMinutes().toString().padStart(2, '0');
+                let timeStr = `${h}:${m}`;
+
+                const isBuy = Math.random() > 0.5;
+                const dirText = isBuy ? "BUY 🟢" : "SELL 🔴";
+                const dirClass = isBuy ? "buy-txt" : "sell-txt";
+                const borderClass = isBuy ? "buy" : "sell";
+
+                let min, max;
+                if (accuracyRange === "90-98") { min = 90; max = 98; }
+                else if (accuracyRange === "80-90") { min = 80; max = 90; }
+                else { min = 70; max = 80; }
+                const acc = (Math.random() * (max - min) + min).toFixed(2) + "%";
+
+                htmlContent += `
+                    <li class="signal-item ${borderClass}" style="animation-delay: ${i * 0.15}s">
+                        <div>
+                            <span class="sig-time">${timeStr}</span>
+                            <span class="sig-market">${market}</span>
+                        </div>
+                        <div class="sig-dir ${dirClass}">${dirText}</div>
+                        <div class="sig-acc">Acc: ${acc}</div>
+                    </li>
+                `;
+                nextTime = new Date(nextTime.getTime() + 5 * 60000);
+            }
+            list.innerHTML = htmlContent;
+        }
+    </script>
+</body>
+</html>
